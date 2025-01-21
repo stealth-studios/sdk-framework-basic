@@ -48,7 +48,7 @@ function generatePersonalityPrompt(personality: BasicCharacterOptions): string {
         {
             title: "Example Conversations",
             content: personality.messageExamples.map((example) =>
-                example.map((msg) => `${msg.user}: ${msg.message}`).join("\n"),
+                example.map((msg) => `${msg.user}: ${msg.content}`).join("\n"),
             ),
         },
         {
@@ -82,7 +82,7 @@ interface BasicCharacterOptions {
     knowledge: string[];
     messageExamples: {
         user: string;
-        message: string;
+        content: string;
     }[][];
     functions: {
         name: string;
