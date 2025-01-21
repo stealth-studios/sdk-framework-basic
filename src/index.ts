@@ -6,7 +6,7 @@ import {
     User,
     logger,
 } from "@stealthstudios/sdk-core";
-import { AIWrapper, Model } from "./aiWrapper";
+import { AIWrapper, Provider as Provider } from "./aiWrapper";
 import crypto from "crypto";
 import { ChatCompletionTool } from "openai/resources/chat/completions.mjs";
 import { OpenAIMessage } from "./aiWrapper";
@@ -130,7 +130,8 @@ class BasicConversation extends Conversation {
 
 interface BasicFrameworkOptions {
     apiKey: string;
-    model: Model;
+    provider: Provider;
+    model: string;
     memorySize: number;
 }
 
@@ -140,7 +141,11 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
 
     constructor(options: BasicFrameworkOptions) {
         super(options);
-        this.aiWrapper = new AIWrapper(options.model, options.apiKey);
+        this.aiWrapper = new AIWrapper(
+            options.provider,
+            options.model,
+            options.apiKey,
+        );
     }
 
     start(adapter: Adapter) {

@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
-export type Model = "openai" | "anthropic" | "deepseek";
+export type Provider = "openai" | "anthropic" | "deepseek";
 
 export type OpenAIMessage =
     | OpenAI.ChatCompletionUserMessageParam
@@ -20,12 +20,16 @@ interface AIResponse {
 
 export class AIWrapper {
     private readonly client: OpenAI | Anthropic;
-    private readonly clientType: Model;
+    private readonly clientType: Provider;
 
-    constructor(model: Model, apiKey: string) {
-        this.clientType = model;
+    constructor(
+        provider: Provider,
+        private readonly model: string,
+        apiKey: string,
+    ) {
+        this.clientType = provider;
 
-        switch (model) {
+        switch (provider) {
             case "openai":
                 this.client = new OpenAI({ apiKey });
                 break;
@@ -69,7 +73,7 @@ export class AIWrapper {
         const response = await this.client.chat.completions.create({
             messages,
             tools,
-            model: this.clientType === "openai" ? "gpt-4" : "deepseek-chat",
+            model: this.model,
         });
 
         const choice = response.choices[0]?.message;
@@ -114,7 +118,7 @@ export class AIWrapper {
 
         const response = await this.client.messages.create({
             messages: anthropicMessages,
-            model: "claude-3-sonnet-20240229",
+            model: this.model,
             system: systemMessage,
             max_tokens: 1024,
             tools: anthropicTools as Anthropic.Tool[],
