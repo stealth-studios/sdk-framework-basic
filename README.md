@@ -13,7 +13,7 @@ _A basic framework for the Stealth SDK, providing a simple interface for interac
 
 ## 📖 Documentation
 
-You may view the documentation for this library [here](https://google.com/docs/frameworks/basic)!
+You may view the documentation for this library [here](https://docs.stealthsdk.com/frameworks/basic)!
 
 ## 🤝 Contributing
 
