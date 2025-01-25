@@ -5,9 +5,9 @@
 _A basic framework for the Stealth SDK, providing a simple interface for interactions._
 
 [![CI Status](https://github.com/stealth-studios/sdk-framework-basic/actions/workflows/ci-ts.yaml/badge.svg)](https://github.com/stealth-studios/sdk-framework-basic/actions/workflows/ci-ts.yaml)
-[![License](https://img.shields.io/github/license/stealth-studios/sdk-framework-basic)](https://github.com/stealth-studios/sdk-framework-basic/blob/main/LICENSE)
-[![npm version](https://img.shields.io/npm/v/@stealthstudios/sdk-framework-basic)](https://www.npmjs.com/package/@stealthstudios/sdk-framework-basic)
-[![npm downloads](https://img.shields.io/npm/dm/@stealthstudios/sdk-framework-basic)](https://www.npmjs.com/package/@stealthstudios/sdk-framework-basic)
+[![License](https://img.shields.io/github/license/stealth-studios/sdk-framework-basic?)](https://github.com/stealth-studios/sdk-framework-basic/blob/main/LICENSE)
+[![npm version](https://img.shields.io/npm/v/@stealthstudios/sdk-framework-basic?)](https://www.npmjs.com/package/@stealthstudios/sdk-framework-basic)
+[![npm downloads](https://img.shields.io/npm/dm/@stealthstudios/sdk-framework-basic?)](https://www.npmjs.com/package/@stealthstudios/sdk-framework-basic)
 
 </div>
 
