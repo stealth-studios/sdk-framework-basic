@@ -130,6 +130,7 @@ class BasicConversation extends Conversation {
 
 interface BasicFrameworkOptions {
     apiKey: string;
+    apiUrl?: string;
     provider: Provider;
     model: string;
     memorySize: number;
@@ -145,6 +146,7 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
             options.provider,
             options.model,
             options.apiKey,
+            options.apiUrl,
         );
     }
 
@@ -230,10 +232,6 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
 
     async getCharacterHash(character: BasicCharacter) {
         return generatePersonalityHash(character.options);
-    }
-
-    stop() {
-        console.log("Stopping framework");
     }
 
     async createConversation({
@@ -327,6 +325,21 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
     async setConversationUsers(conversation: BasicConversation, users: User[]) {
         conversation.users = users;
         return this.adapter?.setConversationUsers(conversation.id, users);
+    }
+
+    setConversationCharacter(
+        conversation: BasicConversation,
+        character: BasicCharacter,
+    ) {
+        conversation.character = character;
+
+        this.adapter?.setConversationCharacter(conversation.id, character);
+
+        this.adapter?.addMessageToConversation(conversation.id, {
+            role: "system",
+            content: generatePersonalityPrompt(character.options),
+            context: [],
+        });
     }
 
     async sendToConversation(

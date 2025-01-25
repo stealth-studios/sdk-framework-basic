@@ -26,21 +26,16 @@ export class AIWrapper {
         provider: Provider,
         private readonly model: string,
         apiKey: string,
+        apiUrl?: string,
     ) {
         this.clientType = provider;
 
         switch (provider) {
             case "openai":
-                this.client = new OpenAI({ apiKey });
+                this.client = new OpenAI({ apiKey, baseURL: apiUrl });
                 break;
             case "anthropic":
-                this.client = new Anthropic({ apiKey });
-                break;
-            case "deepseek":
-                this.client = new OpenAI({
-                    baseURL: "https://api.deepseek.com",
-                    apiKey,
-                });
+                this.client = new Anthropic({ apiKey, baseURL: apiUrl });
                 break;
             default:
                 throw new Error(`Unsupported model type: ${model}`);
