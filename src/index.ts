@@ -11,8 +11,15 @@ import crypto from "crypto";
 import { ChatCompletionTool } from "openai/resources/chat/completions.mjs";
 import { OpenAIMessage } from "./aiWrapper";
 
-function generatePersonalityHash(data: any) {
-    const payload = JSON.stringify(data);
+function generatePersonalityHash(data: BasicCharacterOptions) {
+    const payload = JSON.stringify({
+        name: data.name,
+        bio: data.bio,
+        lore: data.lore,
+        knowledge: data.knowledge,
+        messageExamples: data.messageExamples,
+        functions: data.functions,
+    });
     return crypto.createHash("sha256").update(payload).digest("hex");
 }
 
@@ -327,15 +334,18 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
         return this.adapter?.setConversationUsers(conversation.id, users);
     }
 
-    setConversationCharacter(
+    async setConversationCharacter(
         conversation: BasicConversation,
         character: BasicCharacter,
     ) {
         conversation.character = character;
 
-        this.adapter?.setConversationCharacter(conversation.id, character);
+        await this.adapter?.setConversationCharacter(
+            conversation.id,
+            character,
+        );
 
-        this.adapter?.addMessageToConversation(conversation.id, {
+        await this.adapter?.addMessageToConversation(conversation.id, {
             role: "system",
             content: generatePersonalityPrompt(character.options),
             context: [],
