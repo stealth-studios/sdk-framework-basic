@@ -1,3 +1,7 @@
+# 1.1.2
+
+- Fix typo where DeepSeek was still included as a standalone provider (You should use the `apiUrl` option to use DeepSeek)
+
 # 1.1.1
 
 - Fix bug where the personality hash was not being generated correctly

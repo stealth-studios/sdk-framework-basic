@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
-export type Provider = "openai" | "anthropic" | "deepseek";
+export type Provider = "openai" | "anthropic";
 
 export type OpenAIMessage =
     | OpenAI.ChatCompletionUserMessageParam
@@ -48,7 +48,6 @@ export class AIWrapper {
     ): Promise<AIResponse | null> {
         switch (this.clientType) {
             case "openai":
-            case "deepseek":
                 return this.handleOpenAIQuery(messages, tools);
             case "anthropic":
                 return this.handleAnthropicQuery(messages, tools);

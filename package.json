@@ -1,6 +1,6 @@
 {
     "name": "@stealthstudios/sdk-framework-basic",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "description": "A basic framework for creating agents with StealthSDK",
     "main": "dist/index.js",
     "license": "MIT",
