@@ -1,3 +1,7 @@
+# 1.2.0
+
+- Switch to using the Vercel AI SDK, to provide more providers and models.
+
 # 1.1.2
 
 - Fix typo where DeepSeek was still included as a standalone provider (You should use the `apiUrl` option to use DeepSeek)

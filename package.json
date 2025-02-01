@@ -1,6 +1,6 @@
 {
     "name": "@stealthstudios/sdk-framework-basic",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "A basic framework for creating agents with StealthSDK",
     "main": "dist/index.js",
     "license": "MIT",
@@ -14,9 +14,10 @@
         "prepack": "npm run build"
     },
     "dependencies": {
-        "@anthropic-ai/sdk": "^0.33.1",
-        "@stealthstudios/sdk-core": "^1.1.1",
-        "openai": "^4.80.1"
+        "@stealthstudios/sdk-core": "^1.1.2",
+        "ai": "^4.1.16",
+        "openai": "^4.80.1",
+        "zod": "^3.24.1"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",

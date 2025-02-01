@@ -6,10 +6,17 @@ import {
     User,
     logger,
 } from "@stealthstudios/sdk-core";
-import { AIWrapper, Provider as Provider } from "./aiWrapper";
 import crypto from "crypto";
-import { ChatCompletionTool } from "openai/resources/chat/completions.mjs";
-import { OpenAIMessage } from "./aiWrapper";
+import {
+    CoreAssistantMessage,
+    CoreSystemMessage,
+    CoreUserMessage,
+    generateText,
+    LanguageModelV1,
+    Tool,
+    tool,
+} from "ai";
+import { z } from "zod";
 
 function generatePersonalityHash(data: BasicCharacterOptions) {
     const payload = JSON.stringify({
@@ -136,25 +143,15 @@ class BasicConversation extends Conversation {
 }
 
 interface BasicFrameworkOptions {
-    apiKey: string;
-    apiUrl?: string;
-    provider: Provider;
-    model: string;
+    model: LanguageModelV1;
     memorySize: number;
 }
 
 export default class BasicFramework extends Framework<BasicFrameworkOptions> {
     characters: BasicCharacter[] = [];
-    aiWrapper: AIWrapper;
 
     constructor(options: BasicFrameworkOptions) {
         super(options);
-        this.aiWrapper = new AIWrapper(
-            options.provider,
-            options.model,
-            options.apiKey,
-            options.apiUrl,
-        );
     }
 
     start(adapter: Adapter) {
@@ -404,16 +401,20 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
                 }
 
                 const clonedMessages = [...messages.slice(1)];
-                const contextMessages: OpenAIMessage[] = [
-                    messages[0] as OpenAIMessage,
-                ];
+                const contextMessages: (
+                    | CoreSystemMessage
+                    | CoreUserMessage
+                    | CoreAssistantMessage
+                )[] = [messages[0] as CoreSystemMessage];
 
                 while (contextMessages.length < this.options.memorySize) {
                     const message = clonedMessages.pop();
                     if (!message) {
                         break;
                     }
-                    contextMessages.push(message as OpenAIMessage);
+                    contextMessages.push(
+                        message as CoreSystemMessage | CoreUserMessage,
+                    );
                 }
 
                 const contextWithUsers = [
@@ -439,15 +440,13 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
 
                 contextMessages.push(
                     {
-                        role: "system",
+                        role: "assistant",
                         content: contextMessage,
-                        context: [],
-                    } as OpenAIMessage,
+                    } as CoreAssistantMessage,
                     {
                         role: "user",
                         content: message,
-                        context: [],
-                    } as OpenAIMessage,
+                    } as CoreUserMessage,
                 );
 
                 const username = conversation.users.find(
@@ -462,33 +461,51 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
                     `User ${username} is sending message to conversation ${conversation.id}. Memory size: ${contextMessages.length}`,
                 );
 
-                const tools = character.options.functions
-                    ? character.options.functions.map((func) => ({
-                          type: "function",
-                          function: {
-                              name: func.name,
-                              description: func.description,
-                              parameters: {
-                                  type: "object",
-                                  properties: func.parameters,
-                              },
-                          },
-                      }))
-                    : [];
+                const mappedFunctions: {
+                    [key: string]: Tool;
+                } = {};
 
-                const response = await this.aiWrapper.query(
-                    contextMessages,
-                    tools.length > 0
-                        ? (tools as ChatCompletionTool[])
-                        : undefined,
-                );
+                if (character.options.functions) {
+                    for (const func of character.options.functions) {
+                        mappedFunctions[func.name] = tool({
+                            description: func.description,
+                            parameters: z.object({
+                                ...func.parameters.reduce(
+                                    (acc, param) => {
+                                        acc[param.name] = z
+                                            .union([
+                                                z.string(),
+                                                z.number(),
+                                                z.boolean(),
+                                            ])
+                                            .describe(param.description);
+                                        return acc;
+                                    },
+                                    {} as Record<string, z.ZodType<any>>,
+                                ),
+                            }),
+                            execute: async (args) => {
+                                return {
+                                    ...args,
+                                    result: "This is a placeholder for the actual result",
+                                };
+                            },
+                        });
+                    }
+                }
+
+                const response = await generateText({
+                    model: this.options.model,
+                    messages: contextMessages,
+                    tools: mappedFunctions,
+                });
 
                 if (!response) {
                     throw new Error("Failed to get response from AI");
                 }
 
                 this.adapter?.addMessageToConversation(conversation.id, {
-                    role: "system",
+                    role: "assistant",
                     content: contextMessage,
                     context: [],
                 });
@@ -499,18 +516,20 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
                     context: contextWithUsers,
                 });
 
-                this.adapter?.addMessageToConversation(conversation.id, {
-                    role: "assistant",
-                    content: response.message || "",
-                    context: [],
-                });
+                if (response.text && response.text.length > 0) {
+                    this.adapter?.addMessageToConversation(conversation.id, {
+                        role: "assistant",
+                        content: response.text,
+                        context: [],
+                    });
+                }
 
                 return {
-                    content: response.message || "",
+                    content: response.text || "",
                     calls:
-                        response.tool_calls?.map((call) => ({
-                            name: call.function.name,
-                            parameters: JSON.parse(call.function.arguments),
+                        response.toolCalls?.map((call) => ({
+                            name: call.toolName,
+                            parameters: call.args,
                         })) || [],
                 };
             } catch (error) {
