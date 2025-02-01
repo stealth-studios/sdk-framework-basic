@@ -1,3 +1,7 @@
+# 1.2.1
+
+- Better character validation
+
 # 1.2.0
 
 - Switch to using the Vercel AI SDK, to provide more providers and models.

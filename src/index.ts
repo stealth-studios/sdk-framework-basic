@@ -159,28 +159,47 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
     }
 
     validateCharacter(character: any) {
-        if (!character.name) {
-            throw new Error("Character name is required");
-        }
+        const characterSchema = z.object({
+            name: z.string().nonempty("Character name is required"),
+            bio: z.array(z.string()).nonempty("Character bio is required"),
+            lore: z.array(z.string()).nonempty("Character lore is required"),
+            knowledge: z
+                .array(z.string())
+                .nonempty("Character knowledge is required"),
+            messageExamples: z.array(
+                z.array(
+                    z.object({
+                        user: z.string(),
+                        content: z.string(),
+                    }),
+                ),
+            ),
+            functions: z
+                .array(
+                    z.object({
+                        name: z.string(),
+                        description: z.string(),
+                        parameters: z
+                            .array(
+                                z.object({
+                                    name: z.string(),
+                                    description: z.string(),
+                                    type: z.enum([
+                                        "number",
+                                        "boolean",
+                                        "string",
+                                    ]),
+                                }),
+                            )
+                            .nonempty("Character functions are required"),
+                    }),
+                )
+                .nonempty("Character functions are required"),
+        });
 
-        if (!character.bio) {
-            throw new Error("Character bio is required");
-        }
-
-        if (!character.lore) {
-            throw new Error("Character lore is required");
-        }
-
-        if (!character.knowledge) {
-            throw new Error("Character knowledge is required");
-        }
-
-        if (!character.messageExamples) {
-            throw new Error("Character message examples are required");
-        }
-
-        if (!character.functions) {
-            throw new Error("Character functions are required");
+        const result = characterSchema.safeParse(character);
+        if (!result.success) {
+            throw new Error(result.error.message);
         }
 
         return true;
