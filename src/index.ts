@@ -174,27 +174,19 @@ export default class BasicFramework extends Framework<BasicFrameworkOptions> {
                     }),
                 ),
             ),
-            functions: z
-                .array(
-                    z.object({
-                        name: z.string(),
-                        description: z.string(),
-                        parameters: z
-                            .array(
-                                z.object({
-                                    name: z.string(),
-                                    description: z.string(),
-                                    type: z.enum([
-                                        "number",
-                                        "boolean",
-                                        "string",
-                                    ]),
-                                }),
-                            )
-                            .nonempty("Character functions are required"),
-                    }),
-                )
-                .nonempty("Character functions are required"),
+            functions: z.array(
+                z.object({
+                    name: z.string(),
+                    description: z.string(),
+                    parameters: z.array(
+                        z.object({
+                            name: z.string(),
+                            description: z.string(),
+                            type: z.enum(["number", "boolean", "string"]),
+                        }),
+                    ),
+                }),
+            ),
         });
 
         const result = characterSchema.safeParse(character);

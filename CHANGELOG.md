@@ -1,3 +1,11 @@
+# 1.2.3
+
+- Functions may now be an empty array
+
+# 1.2.2
+
+- Parameters may now be an empty array
+
 # 1.2.1
 
 - Better character validation
